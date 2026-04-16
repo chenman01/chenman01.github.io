@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI智能服务体系 — 知识晾晒进度汇总</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+<style>
+  :root {
+    --bg: #f0f2f5;
+    --card: #ffffff;
+    --primary: #1677ff;
+    --success: #52c41a;
+    --warning: #faad14;
+    --danger: #ff4d4f;
+    --text: #1f1f1f;
+    --text2: #666;
+    --text3: #999;
+    --border: #e8e8e8;
+    --k1: #3b82f6;
+    --k3: #8b5cf6;
+    --k4: #f59e0b;
+    --shadow: 0 2px 12px rgba(0,0,0,0.06);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+  }
+
+  /* === Header === */
+  .header {
+    background: linear-gradient(135deg, #1677ff 0%, #4096ff 50%, #69b1ff 100%);
+    color: #fff;
+    padding: 40px 0 32px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .header::before {
+    content: '';
+    position: absolute;
+    top: -50%; left: -50%;
+    width: 200%; height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%);
+  }
+  .header h1 { font-size: 28px; font-weight: 700; margin-bottom: 8px; position: relative; }
+  .header .subtitle { font-size: 15px; opacity: 0.85; position: relative; }
+  .header .date-badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.2);
+    border-radius: 20px;
+    padding: 4px 16px;
+    font-size: 13px;
+    margin-top: 12px;
+    backdrop-filter: blur(4px);
+    position: relative;
+  }
+
+  /* === Layout === */
+  .container { max-width: 1280px; margin: 0 auto; padding: 24px 20px; }
+
+  /* === Alert Banner === */
+  .alert-banner {
+    background: linear-gradient(135deg, #fff2e8 0%, #fff7e6 100%);
+    border: 1px solid #ffd591;
+    border-radius: 12px;
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 24px;
+    animation: pulse-border 2s ease-in-out infinite;
+  }
+  @keyframes pulse-border {
+    0%, 100% { border-color: #ffd591; }
+    50% { border-color: #ffa940; }
+  }
+  .alert-banner .icon { font-size: 24px; }
+  .alert-banner .text { font-size: 14px; color: #ad4e00; font-weight: 500; }
+  .alert-banner .text strong { color: #d4380d; }
+
+  /* === KPI Cards === */
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+  .kpi-card {
+    background: var(--card);
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+    box-shadow: var(--shadow);
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.2s;
+  }
+  .kpi-card:hover { transform: translateY(-2px); }
+  .kpi-card .label { font-size: 13px; color: var(--text3); margin-bottom: 8px; }
+  .kpi-card .value { font-size: 32px; font-weight: 700; }
+  .kpi-card .unit { font-size: 14px; color: var(--text2); font-weight: 400; }
+  .kpi-card.highlight .value { color: var(--danger); }
+  .kpi-card.primary .value { color: var(--primary); }
+  .kpi-card .trend { font-size: 12px; margin-top: 6px; padding: 2px 8px; border-radius: 10px; display: inline-block; }
+  .kpi-card .trend.down { background: #fff1f0; color: #cf1322; }
+  .kpi-card .trend.up { background: #f6ffed; color: #389e0d; }
+
+  /* === Section === */
+  .section { margin-bottom: 16px; }
+  .section-title {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-title .dot {
+    width: 4px;
+    height: 20px;
+    border-radius: 2px;
+    background: var(--primary);
+  }
+
+  /* === Charts grid === */
+  .charts-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 28px;
+  }
+  .chart-card {
+    background: var(--card);
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: var(--shadow);
+  }
+  .chart-card .chart-title {
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    color: var(--text);
+  }
+  .chart-container { width: 100%; height: 320px; }
+
+  /* === Full Table === */
+  .table-card {
+    background: var(--card);
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    margin-bottom: 28px;
+  }
+  .table-card .table-header {
+    padding: 16px 24px;
+    background: linear-gradient(135deg, #1677ff, #4096ff);
+    color: #fff;
+    font-size: 16px;
+    font-weight: 600;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .table-card .table-header .sub { font-size: 13px; opacity: 0.85; font-weight: 400; }
+  .full-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .full-table thead { background: #fafafa; }
+  .full-table th {
+    padding: 10px 12px;
+    text-align: center;
+    font-weight: 600;
+    color: var(--text2);
+    border-bottom: 2px solid var(--border);
+    white-space: nowrap;
+    font-size: 12px;
+  }
+  .full-table th.col-header {
+    background: #f0f5ff;
+    font-size: 11px;
+    padding: 6px 8px;
+    color: #555;
+  }
+  .full-table td {
+    padding: 9px 12px;
+    border-bottom: 1px solid #f3f3f3;
+    text-align: center;
+  }
+  .full-table tr:hover { background: #fafbff; }
+  .full-table tr.total-row { background: #e6f4ff; font-weight: 700; }
+  .full-table tr.total-row td { border-bottom: 2px solid var(--primary); }
+
+  .team-tag {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .team-tag.k1 { background: #eff6ff; color: #2563eb; }
+  .team-tag.k3 { background: #f5f3ff; color: #7c3aed; }
+  .team-tag.k4 { background: #fffbeb; color: #d97706; }
+
+  .check { color: var(--success); font-weight: 700; }
+  .check-label { color: var(--success); font-size: 11px; }
+
+  .count-cell { font-weight: 700; font-size: 14px; }
+  .count-cell.high { color: var(--primary); }
+  .count-cell.zero { color: var(--danger); }
+  .count-cell.normal { color: var(--text); }
+
+  .delta-cell { font-size: 12px; font-weight: 600; }
+  .delta-cell.zero { color: var(--danger); }
+  .delta-cell.positive { color: var(--success); }
+
+  .name-cell { text-align: left !important; font-weight: 500; }
+
+  /* === Team summary cards === */
+  .team-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    margin-bottom: 28px;
+  }
+  .team-summary-card {
+    background: var(--card);
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+  .team-summary-header {
+    padding: 16px 20px;
+    color: #fff;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .team-summary-header.k1 { background: linear-gradient(135deg, #3b82f6, #60a5fa); }
+  .team-summary-header.k3 { background: linear-gradient(135deg, #8b5cf6, #a78bfa); }
+  .team-summary-header.k4 { background: linear-gradient(135deg, #f59e0b, #fbbf24); }
+  .team-summary-header .team-name { font-size: 16px; font-weight: 600; }
+  .team-summary-header .team-stats { font-size: 13px; opacity: 0.9; }
+  .team-summary-body { padding: 16px 20px; }
+  .team-metric { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #f5f5f5; font-size: 13px; }
+  .team-metric:last-child { border-bottom: none; }
+  .team-metric .lbl { color: var(--text2); }
+  .team-metric .val { font-weight: 700; }
+  .team-metric .val.danger { color: var(--danger); }
+  .team-metric .val.good { color: var(--success); }
+
+  /* === Risk panel === */
+  .risk-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 28px;
+  }
+  .risk-card {
+    background: var(--card);
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: var(--shadow);
+  }
+  .risk-card.danger { border-left: 4px solid var(--danger); }
+  .risk-card.warning { border-left: 4px solid var(--warning); }
+  .risk-card .risk-title { font-size: 15px; font-weight: 600; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+  .risk-card .risk-item { font-size: 13px; color: var(--text2); margin-bottom: 6px; padding-left: 16px; position: relative; }
+  .risk-card .risk-item::before { content: '\2022'; position: absolute; left: 4px; color: var(--text3); }
+
+  /* === Footer === */
+  .footer { text-align: center; padding: 20px 0 32px; color: var(--text3); font-size: 12px; }
+
+  /* === Responsive === */
+  @media (max-width: 900px) {
+    .kpi-grid { grid-template-columns: repeat(3, 1fr); }
+    .charts-grid, .team-summary-grid, .risk-grid { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 600px) {
+    .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+    .header h1 { font-size: 22px; }
+    .full-table { font-size: 11px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header">
+  <h1>📊 AI智能服务体系 — 知识晾晒进度</h1>
+  <div class="subtitle">Knowledge Base Update Progress Dashboard</div>
+  <div class="date-badge">📅 数据截止 2026年4月15日 ｜ 汇总于 4月16日</div>
+</div>
+
+<div class="container">
+
+  <!-- Alert -->
+  <div class="alert-banner">
+    <span class="icon">⚠️</span>
+    <span class="text">4月8日 → 4月15日期间 <strong>新增产出 11 条</strong>（李玥+5、周子微+5、王露青+1），仍有 <strong>12 人零产出</strong>需重点关注。</span>
+  </div>
+
+  <!-- KPI -->
+  <div class="kpi-grid">
+    <div class="kpi-card primary">
+      <div class="label">参与总人数</div>
+      <div class="value">31<span class="unit"> 人</span></div>
+    </div>
+    <div class="kpi-card primary">
+      <div class="label">累计产出条目</div>
+      <div class="value">373<span class="unit"> 条</span></div>
+    </div>
+    <div class="kpi-card">
+      <div class="label">人均产出</div>
+      <div class="value">12.0<span class="unit"> 条</span></div>
+    </div>
+    <div class="kpi-card">
+      <div class="label">4/8→4/15 新增</div>
+      <div class="value">11<span class="unit"> 条</span></div>
+      <div class="trend up">⬆ +11</div>
+    </div>
+    <div class="kpi-card highlight">
+      <div class="label">零产出人数</div>
+      <div class="value">12<span class="unit"> 人</span></div>
+      <div class="trend down">占比 39%</div>
+    </div>
+  </div>
+
+  <!-- Charts -->
+  <div class="section">
+    <div class="section-title"><span class="dot"></span>数据概览</div>
+  </div>
+  <div class="charts-grid">
+    <div class="chart-card">
+      <div class="chart-title">各团队产出对比</div>
+      <div id="chartTeam" class="chart-container"></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">人员状态分布</div>
+      <div id="chartStatus" class="chart-container"></div>
+    </div>
+  </div>
+  <div class="charts-grid">
+    <div class="chart-card">
+      <div class="chart-title">知识分类认领人数</div>
+      <div id="chartCategory" class="chart-container"></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">TOP10 个人产出排行</div>
+      <div id="chartTop10" class="chart-container"></div>
+    </div>
+  </div>
+
+  <!-- Team Summary Cards -->
+  <div class="section">
+    <div class="section-title"><span class="dot"></span>团队概况</div>
+  </div>
+  <div class="team-summary-grid" id="teamSummaryGrid"></div>
+
+  <!-- Full Table -->
+  <div class="section">
+    <div class="section-title"><span class="dot"></span>全员明细表</div>
+  </div>
+  <div class="table-card">
+    <div class="table-header">
+      <span>📋 知识晾晒进度明细（截止4月15日）</span>
+      <span class="sub">总计 31人 ｜ 7大分类 ｜ 373条</span>
+    </div>
+    <div style="overflow-x:auto;">
+      <table class="full-table">
+        <thead>
+          <tr>
+            <th rowspan="2" style="width:50px">团队</th>
+            <th rowspan="2" style="width:70px; text-align:left">主题达人</th>
+            <th colspan="7">知识分类认领</th>
+            <th colspan="2">进度数据</th>
+          </tr>
+          <tr>
+            <th class="col-header">违规/风控规则</th>
+            <th class="col-header">政策与财务</th>
+            <th class="col-header">K4-城市之星</th>
+            <th class="col-header">K1-行拓/作战单元</th>
+            <th class="col-header">K3-合伙人/作战单元</th>
+            <th class="col-header">K3-服务商管理</th>
+            <th class="col-header">工具产品</th>
+            <th class="col-header" style="background:#e6f7ff">截止4/8</th>
+            <th class="col-header" style="background:#fff7e6">截止4/15</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Risk -->
+  <div class="section">
+    <div class="section-title"><span class="dot"></span>风险提示 & 建议</div>
+  </div>
+  <div class="risk-grid">
+    <div class="risk-card danger">
+      <div class="risk-title">🔴 需重点关注</div>
+      <div class="risk-item"><strong>39% 零产出</strong> — 12人尚未开始或无产出：倪贞、郭佳男、王睿、邹晚婷、姜川、曾蕊、范晓冰、郭炜轩、陈方依、kino（含K1两人、K3两人、K4六人）</div>
+      <div class="risk-item"><strong>K4 两极分化严重</strong> — 易晓雪(91)+肖芳林(76)占K4产出69%，但K4仍有6人零产出</div>
+      <div class="risk-item"><strong>本周增量有限</strong> — 仅+11条，李玥(+5)、周子微(+5)、王露青(+1)，其余无变化</div>
+      <div class="risk-item"><strong>K1 完全停滞</strong> — 4人中2人零产出，本周无任何新增</div>
+    </div>
+    <div class="risk-card warning">
+      <div class="risk-title">📌 下一步建议</div>
+      <div class="risk-item"><strong>重点催办K4零产出</strong>：姜川、曾蕊、范晓冰、郭炜轩、陈方依、kino需1v1沟通</div>
+      <div class="risk-item"><strong>K1需破冰</strong>：倪贞、郭佳男本周应至少完成首条录入</div>
+      <div class="risk-item"><strong>K3零产出关注</strong>：王睿、邹晚婷需推动开始录入</div>
+      <div class="risk-item"><strong>肯定周子微进步</strong>：从0→5条实现破冰，正向激励</div>
+      <div class="risk-item"><strong>标杆分享</strong>：安排易晓雪/肖芳林分享高效录入方法，带动整体节奏</div>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">AI智能服务体系 — 知识晾晒进度汇总 ｜ 自动生成于 2026-04-16 🐾</div>
+
+<script>
+// === Data ===
+const allData = [
+  // K1
+  { name: '倪贞',   team: 'K1', cats: {risk: true}, count8: 0,  count15: 0 },
+  { name: '洪成耀', team: 'K1', cats: {k1unit: true}, count8: 29, count15: 29 },
+  { name: '詹书典', team: 'K1', cats: {risk: true, k1unit: true, tool: true}, count8: 29, count15: 29 },
+  { name: '郭佳男', team: 'K1', cats: {risk: true}, count8: 0,  count15: 0 },
+  // K3
+  { name: '于子涵', team: 'K3', cats: {k3unit: true}, count8: 13, count15: 13 },
+  { name: '张超',   team: 'K3', cats: {finance: '合同财务/发票/应收'}, count8: 21, count15: 21 },
+  { name: '曾永昕', team: 'K3', cats: {finance: '保证金管理'}, count8: 8,  count15: 8 },
+  { name: '杨青青', team: 'K3', cats: {finance: '新服务商应知应会', k3unit: true}, count8: 5, count15: 5 },
+  { name: '郑方圆', team: 'K3', cats: {finance: '授信管理'}, count8: 7,  count15: 7 },
+  { name: '王睿',   team: 'K3', cats: {k3unit: true}, count8: 0,  count15: 0 },
+  { name: '邹晚婷', team: 'K3', cats: {k3unit: true}, count8: 0,  count15: 0 },
+  // K4
+  { name: '周子微', team: 'K4', cats: {k4star: true}, count8: 0,  count15: 5 },
+  { name: '姜川',   team: 'K4', cats: {k4star: true}, count8: 0,  count15: 0 },
+  { name: '左启宏', team: 'K4', cats: {k4star: true}, count8: 4,  count15: 4 },
+  { name: '惠娇',   team: 'K4', cats: {risk: true}, count8: 4,  count15: 4 },
+  { name: '易晓雪', team: 'K4', cats: {finance: '成长中心', k4star: true, tool: true}, count8: 91, count15: 91 },
+  { name: '曾蕊',   team: 'K4', cats: {k4star: true}, count8: 0,  count15: 0 },
+  { name: '朱琳',   team: 'K4', cats: {finance: '政策相关'}, count8: 27, count15: 27 },
+  { name: '李玥',   team: 'K4', cats: {finance: '新服务商应知应会'}, count8: 14, count15: 19 },
+  { name: '毛敏',   team: 'K4', cats: {risk: true}, count8: 1,  count15: 1 },
+  { name: '王乐',   team: 'K4', cats: {finance: '政策相关'}, count8: 2,  count15: 2 },
+  { name: '王海娟', team: 'K4', cats: {finance: '合同财务/发票/应收'}, count8: 3, count15: 3 },
+  { name: '肖芳林', team: 'K4', cats: {multi: true}, count8: 76, count15: 76 },
+  { name: '范晓冰', team: 'K4', cats: {}, count8: 0,  count15: 0 },
+  { name: '郭炜轩', team: 'K4', cats: {}, count8: 0,  count15: 0 },
+  { name: '陈方依', team: 'K4', cats: {k4star: true}, count8: 0,  count15: 0 },
+  { name: '陈海亮', team: 'K4', cats: {finance: '授信管理'}, count8: 18, count15: 18 },
+  { name: '王露青', team: 'K4', cats: {finance: '新服务商应知应会'}, count8: 10, count15: 11 },
+  { name: 'kino',   team: 'K4', cats: {}, count8: 0,  count15: 0 },
+  { name: '曾永诚', team: 'K4', cats: {}, count8: 8,  count15: 8 },
+];
+
+// Sort by count desc
+const sorted = [...allData].sort((a, b) => b.count15 - a.count15 || b.count8 - a.count8);
+const maxCount = Math.max(...allData.map(d => d.count15));
+
+// Build full table
+const tbody = document.getElementById('tableBody');
+const teamOrder = ['K1', 'K3', 'K4'];
+// Total row first
+const totalCount8 = allData.reduce((s, d) => s + d.count8, 0);
+const totalCount15 = allData.reduce((s, d) => s + d.count15, 0);
+const totalRisk = allData.filter(d => d.cats.risk).length;
+const totalFinance = allData.filter(d => d.cats.finance).length;
+const totalK4star = allData.filter(d => d.cats.k4star).length;
+const totalK1unit = allData.filter(d => d.cats.k1unit).length;
+const totalK3unit = allData.filter(d => d.cats.k3unit).length;
+const totalK3svc = allData.filter(d => d.cats.k3svc).length;
+const totalTool = allData.filter(d => d.cats.tool || d.cats.multi).length;
+
+const totalDelta = totalCount15 - totalCount8;
+let html = `<tr class="total-row">
+  <td style="color:var(--primary);font-weight:700">总计</td>
+  <td><strong>${allData.length}</strong></td>
+  <td><strong>6</strong></td>
+  <td><strong>12</strong></td>
+  <td><strong>9</strong></td>
+  <td><strong>2</strong></td>
+  <td><strong>3</strong></td>
+  <td><strong>1</strong></td>
+  <td><strong>3</strong></td>
+  <td style="background:#e6f7ff"><strong style="color:var(--primary)">${totalCount8}</strong></td>
+  <td style="background:#fff7e6"><strong style="color:var(--primary)">${totalCount15}</strong></td>
+</tr>`;
+
+teamOrder.forEach(team => {
+  const members = allData.filter(d => d.team === team).sort((a, b) => b.count15 - a.count15);
+  members.forEach(m => {
+    const count8Cls = m.count8 === 0 ? 'zero' : m.count8 >= 20 ? 'high' : 'normal';
+    const count15Cls = m.count15 === 0 ? 'zero' : m.count15 >= 20 ? 'high' : 'normal';
+    const teamCls = team.toLowerCase();
+
+    // Category checkmarks
+    const riskCell = m.cats.risk ? '<span class="check">✓</span>' : '';
+    let financeCell = '';
+    if (m.cats.finance) {
+      financeCell = `<span class="check">✓</span><br><span class="check-label">${typeof m.cats.finance === 'string' ? m.cats.finance : ''}</span>`;
+    }
+    const k4Cell = m.cats.k4star ? '<span class="check">✓</span>' : '';
+    const k1Cell = m.cats.k1unit ? '<span class="check">✓</span>' : '';
+    const k3uCell = m.cats.k3unit ? '<span class="check">✓</span>' : '';
+    const k3sCell = m.cats.k3svc ? '<span class="check">✓</span>' : '';
+    let toolCell = '';
+    if (m.cats.tool) toolCell = '<span class="check">✓</span>';
+    if (m.cats.multi) toolCell = '<span class="check">✓</span>';
+
+    html += `<tr>
+      <td><span class="team-tag ${teamCls}">${team}</span></td>
+      <td class="name-cell">${m.name}</td>
+      <td>${riskCell}</td>
+      <td>${financeCell}</td>
+      <td>${k4Cell}</td>
+      <td>${k1Cell}</td>
+      <td>${k3uCell}</td>
+      <td>${k3sCell}</td>
+      <td>${toolCell}</td>
+      <td style="background:#f0f9ff" class="count-cell ${count8Cls}">${m.count8}</td>
+      <td style="background:#fffbe6" class="count-cell ${count15Cls}">${m.count15}</td>
+    </tr>`;
+  });
+});
+tbody.innerHTML = html;
+
+// Team summary cards
+const teamSummaryGrid = document.getElementById('teamSummaryGrid');
+const teamConfigs = [
+  { team: 'K1', cls: 'k1', label: 'K1 团队' },
+  { team: 'K3', cls: 'k3', label: 'K3 团队' },
+  { team: 'K4', cls: 'k4', label: 'K4 团队' },
+];
+teamConfigs.forEach(tc => {
+  const members = allData.filter(d => d.team === tc.team);
+  const total = members.reduce((s, d) => s + d.count15, 0);
+  const avg = (total / members.length).toFixed(1);
+  const zeroCount = members.filter(d => d.count15 === 0).length;
+  const topMember = [...members].sort((a, b) => b.count15 - a.count15)[0];
+  const delta = members.reduce((s, d) => s + (d.count15 - d.count8), 0);
+
+  teamSummaryGrid.innerHTML += `
+    <div class="team-summary-card">
+      <div class="team-summary-header ${tc.cls}">
+        <span class="team-name">${tc.label}</span>
+        <span class="team-stats">${members.length}人 ｜ ${total}条</span>
+      </div>
+      <div class="team-summary-body">
+        <div class="team-metric"><span class="lbl">人均产出</span><span class="val">${avg} 条/人</span></div>
+        <div class="team-metric"><span class="lbl">本周新增</span><span class="val danger">${delta > 0 ? '+' + delta : delta} 条</span></div>
+        <div class="team-metric"><span class="lbl">零产出人数</span><span class="val ${zeroCount > 0 ? 'danger' : 'good'}">${zeroCount} 人</span></div>
+        <div class="team-metric"><span class="lbl">TOP贡献者</span><span class="val">${topMember.name} (${topMember.count15}条)</span></div>
+      </div>
+    </div>`;
+});
+
+// === ECharts ===
+// 1. Team comparison
+const chartTeam = echarts.init(document.getElementById('chartTeam'));
+const teamTotals = teamConfigs.map(tc => {
+  const members = allData.filter(d => d.team === tc.team);
+  return members.reduce((s, d) => s + d.count15, 0);
+});
+const teamAvgs = teamConfigs.map((tc, i) => {
+  const members = allData.filter(d => d.team === tc.team);
+  return +(teamTotals[i] / members.length).toFixed(1);
+});
+chartTeam.setOption({
+  tooltip: { trigger: 'axis' },
+  legend: { data: ['总产出', '人均'], bottom: 5 },
+  grid: { left: 60, right: 30, top: 30, bottom: 50 },
+  xAxis: { type: 'category', data: ['K1', 'K3', 'K4'], axisLabel: { fontSize: 14, fontWeight: 600 } },
+  yAxis: { type: 'value', name: '条目数' },
+  series: [
+    {
+      name: '总产出',
+      type: 'bar',
+      barWidth: 50,
+      data: [
+        { value: teamTotals[0], itemStyle: { color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{ offset: 0, color: '#60a5fa' }, { offset: 1, color: '#3b82f6' }]) } },
+        { value: teamTotals[1], itemStyle: { color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{ offset: 0, color: '#a78bfa' }, { offset: 1, color: '#8b5cf6' }]) } },
+        { value: teamTotals[2], itemStyle: { color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{ offset: 0, color: '#fbbf24' }, { offset: 1, color: '#f59e0b' }]) } },
+      ],
+      label: { show: true, position: 'top', fontWeight: 700, fontSize: 16 },
+    },
+    {
+      name: '人均',
+      type: 'line',
+      data: teamAvgs,
+      symbol: 'circle',
+      symbolSize: 8,
+      lineStyle: { color: '#f43f5e', width: 2 },
+      itemStyle: { color: '#f43f5e' },
+      label: { show: true, position: 'top', formatter: '{c}条/人', fontSize: 11, color: '#f43f5e' },
+    },
+  ]
+});
+
+// 2. Status pie
+const chartStatus = echarts.init(document.getElementById('chartStatus'));
+const statusCounts = { 'excellent': 0, 'active': 0, 'slow': 0, 'zero': 0 };
+allData.forEach(d => {
+  if (d.count15 === 0) statusCounts.zero++;
+  else if (d.count15 >= 20) statusCounts.excellent++;
+  else if (d.count15 >= 5) statusCounts.active++;
+  else statusCounts.slow++;
+});
+chartStatus.setOption({
+  tooltip: { trigger: 'item', formatter: '{b}: {c}人 ({d}%)' },
+  legend: { bottom: 10, itemGap: 16 },
+  series: [{
+    type: 'pie',
+    radius: ['42%', '70%'],
+    center: ['50%', '45%'],
+    avoidLabelOverlap: true,
+    itemStyle: { borderRadius: 6, borderColor: '#fff', borderWidth: 2 },
+    label: { show: true, formatter: '{b}\n{c}人', fontSize: 12 },
+    data: [
+      { value: statusCounts.excellent, name: '优秀 (\u226520)', itemStyle: { color: '#52c41a' } },
+      { value: statusCounts.active, name: '进行中 (5-19)', itemStyle: { color: '#faad14' } },
+      { value: statusCounts.slow, name: '待推进 (1-4)', itemStyle: { color: '#ff7875' } },
+      { value: statusCounts.zero, name: '零产出', itemStyle: { color: '#ff4d4f' } },
+    ]
+  }]
+});
+
+// 3. Category bar
+const chartCategory = echarts.init(document.getElementById('chartCategory'));
+const categories = ['违规/风控规则', '政策与财务', 'K4-城市之星', 'K1-行拓/作战单元', 'K3-合伙人/作战单元', 'K3-服务商管理', '工具产品'];
+const catCounts = [6, 12, 9, 2, 3, 1, 3];
+chartCategory.setOption({
+  tooltip: { trigger: 'axis' },
+  grid: { left: 140, right: 40, top: 20, bottom: 20 },
+  xAxis: { type: 'value' },
+  yAxis: { type: 'category', data: [...categories].reverse(), axisLabel: { fontSize: 12 } },
+  series: [{
+    type: 'bar',
+    data: [...catCounts].reverse().map((v, i) => ({
+      value: v,
+      itemStyle: { color: ['#597ef7', '#52c41a', '#8b5cf6', '#f59e0b', '#36cfc9', '#ff7a45', '#1677ff'][i] }
+    })),
+    barWidth: 24,
+    label: { show: true, position: 'right', formatter: '{c}人', fontSize: 12, fontWeight: 600 },
+  }]
+});
+
+// 4. Top10
+const chartTop10 = echarts.init(document.getElementById('chartTop10'));
+const top10 = sorted.filter(d => d.count15 > 0).slice(0, 10).reverse();
+const teamColors = { K1: '#3b82f6', K3: '#8b5cf6', K4: '#f59e0b' };
+chartTop10.setOption({
+  tooltip: { trigger: 'axis' },
+  grid: { left: 80, right: 50, top: 10, bottom: 20 },
+  xAxis: { type: 'value' },
+  yAxis: { type: 'category', data: top10.map(d => d.name), axisLabel: { fontSize: 13, fontWeight: 500 } },
+  series: [{
+    type: 'bar',
+    data: top10.map(d => ({
+      value: d.count15,
+      itemStyle: {
+        color: new echarts.graphic.LinearGradient(0, 0, 1, 0, [
+          { offset: 0, color: teamColors[d.team] },
+          { offset: 1, color: teamColors[d.team] + 'aa' },
+        ])
+      }
+    })),
+    barWidth: 22,
+    label: { show: true, position: 'right', formatter: '{c}条', fontSize: 12, fontWeight: 600 },
+  }]
+});
+
+// Resize
+window.addEventListener('resize', () => {
+  chartTeam.resize();
+  chartStatus.resize();
+  chartCategory.resize();
+  chartTop10.resize();
+});
+</script>
+</body>
+</html>
