@@ -430,7 +430,7 @@ const allData = [
   // K3
   { name: '于子涵', team: 'K3', cats: {k3unit: true}, count8: 13, count15: 13 },
   { name: '张超',   team: 'K3', cats: {finance: '合同财务/发票/应收'}, count8: 21, count15: 21 },
-  { name: '杨青青', team: 'K3', cats: {finance: '新服务商应知应会', k3unit: true}, count8: 5, count15: 5 },
+  { name: '杨青青', team: 'K3', cats: {finance: '新服务商应知应会', k3svc: true}, count8: 5, count15: 5 },
   { name: '郑方圆', team: 'K3', cats: {finance: '授信管理'}, count8: 7,  count15: 7 },
   { name: '王睿',   team: 'K3', cats: {k3unit: true}, count8: 0,  count15: 0 },
   { name: '邹晚婷', team: 'K3', cats: {k3unit: true}, count8: 0,  count15: 0 },
@@ -477,13 +477,13 @@ const totalDelta = totalCount15 - totalCount8;
 let html = `<tr class="total-row">
   <td style="color:var(--primary);font-weight:700">总计</td>
   <td><strong>${allData.length}</strong></td>
-  <td><strong>6</strong></td>
-  <td><strong>12</strong></td>
-  <td><strong>9</strong></td>
-  <td><strong>2</strong></td>
-  <td><strong>3</strong></td>
-  <td><strong>1</strong></td>
-  <td><strong>3</strong></td>
+  <td><strong>${totalRisk}</strong></td>
+  <td><strong>${totalFinance}</strong></td>
+  <td><strong>${totalK4star}</strong></td>
+  <td><strong>${totalK1unit}</strong></td>
+  <td><strong>${totalK3unit}</strong></td>
+  <td><strong>${totalK3svc}</strong></td>
+  <td><strong>${totalTool}</strong></td>
   <td style="background:#e6f7ff"><strong style="color:var(--primary)">${totalCount8}</strong></td>
   <td style="background:#fff7e6"><strong style="color:var(--primary)">${totalCount15}</strong></td>
 </tr>`;
